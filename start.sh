@@ -1,6 +1,11 @@
 #!/bin/bash
 
-root_dir="server"
+root_dir="$1"
+if [[ $1 != "client" && $1 != "server" ]]; then
+	echo "Options are (server) or (client)"
+	exit 1
+fi
+
 src="src"
 src_dir="$root_dir/$src"
 output_dir="$root_dir/bin"
@@ -18,7 +23,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# compile server/src code
+# compile client/src code
 javac -cp "$output_dir:$dependencies/*" -d "$output_dir" "$src_dir"/*.java
 if [ $? -ne 0 ]; then
     echo "Server code compilation failed. Exiting."
