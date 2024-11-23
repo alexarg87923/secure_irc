@@ -4,8 +4,8 @@ import java.security.KeyStore;
 import java.util.*;
 
 public class Main {
-
 	private static String keyPath = "server.keystore";
+	private static IO io = new IO();
 
     public static void main(String[] args) throws Exception {
 		Map<String, String> env = EnvLoader.loadEnv();
@@ -13,12 +13,14 @@ public class Main {
 		KeyStore keyStore = KeyStore.getInstance("JKS");
 
 		if (!file.exists()) {
+			io.print_flush("Keystore doesn't exist");
 			keyStore.load(null, null);
 
 			try (FileOutputStream fos = new FileOutputStream(keyPath)) {
-				keyStore.store(fos, "PASSWORD".toCharArray());
+				keyStore.store(fos, env.get("PASSWORD").toCharArray());
 			}
         } else {
+			io.print_flush("Keystore exists");
 			try (FileInputStream keyStoreFile = new FileInputStream(keyPath)) {
 				keyStore.load(keyStoreFile, env.get("PASSWORD").toCharArray());
 			}
@@ -27,16 +29,16 @@ public class Main {
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
         keyManagerFactory.init(keyStore, env.get("PASSWORD").toCharArray());
 
-		env.clear();
-		env = null;
+
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 
         SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
         SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(8443);
-
-        System.out.println("Secure server is running on port 8443...");
+        io.print_flush("Secure server is listening on port " + env.get("PORT"));
+		env.clear();
+		env = null;
 
         while (true) {
             SSLSocket socket = (SSLSocket) serverSocket.accept();
