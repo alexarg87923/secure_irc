@@ -16,12 +16,19 @@
 
 2. Ensure the script has execution permissions:
     ```bash
-    chmod +x start-app.sh
+    chmod +x *.sh 
     ```
 
 ## Usage
 
-Run the following command to start the application:
+Run the following command to start the client:
 
 ```bash
-./start-app.sh
+./client-start.sh
+```
+
+Open a new terminal and run the following command to start the server:
+
+```bash
+./server-start.sh
+```
