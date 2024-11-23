@@ -5,16 +5,30 @@ import java.util.*;
 
 public class Main {
 
+	private static String keyPath = "server.keystore";
+
     public static void main(String[] args) throws Exception {
 		Map<String, String> env = EnvLoader.loadEnv();
+		File file = new File(keyPath);
+		KeyStore keyStore = KeyStore.getInstance("JKS");
 
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        try (FileInputStream keyStoreFile = new FileInputStream("server.keystore")) {
-            keyStore.load(keyStoreFile, env.get("PASSWORD").toCharArray());
-        }
+		if (!file.exists()) {
+			keyStore.load(null, null);
+
+			try (FileOutputStream fos = new FileOutputStream(keyPath)) {
+				keyStore.store(fos, "PASSWORD".toCharArray());
+			}
+        } else {
+			try (FileInputStream keyStoreFile = new FileInputStream(keyPath)) {
+				keyStore.load(keyStoreFile, env.get("PASSWORD").toCharArray());
+			}
+		}
 
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
         keyManagerFactory.init(keyStore, env.get("PASSWORD").toCharArray());
+
+		env.clear();
+		env = null;
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
