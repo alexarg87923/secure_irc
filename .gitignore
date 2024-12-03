@@ -2,3 +2,8 @@
 *.class
 **/bin/**
 .vscode
+*.crt
+*.key
+*.csr
+*.private
+*.srl
